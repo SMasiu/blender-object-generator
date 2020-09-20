@@ -5,34 +5,43 @@ cuts = 3
 radius = 5
 height = 10.0
 
-vertices = [(0.0, 0.0, 0.0), (0.0, 0.0, height)]
+vertices = []
 faces = []
 
 angle = 360.0 / cuts
+current_angle = 0
 
+bottom_vertices = []
+top_vertices = []
 
-def append_circle_base(center_vertex_index: int, offset_face: int, z_axis: float):
-    current_angle = 0
-    for x in range(0, cuts + 1):
-        vertices.append((
-            radius * math.sin(math.radians(current_angle)),
-            radius * math.cos(math.radians(current_angle)),
-            z_axis
-        ))
-        current_angle += angle
+bottom_face = ()
+top_face = ()
 
-        if x != cuts:
-            faces.append((center_vertex_index, x + offset_face, x + 1 + offset_face))
+for x in range(0, cuts):
+    bottom_vertices.append((
+        radius * math.sin(math.radians(current_angle)),
+        radius * math.cos(math.radians(current_angle)),
+        0.0
+    ))
+    top_vertices.append((
+        radius * math.sin(math.radians(current_angle)),
+        radius * math.cos(math.radians(current_angle)),
+        height
+    ))
 
+    current_angle += angle
 
-append_circle_base(0, 2, 0)
-append_circle_base(1, 3 + cuts, height)
+    bottom_face += (x,)
+    top_face += (x + cuts,)
 
-print(vertices)
-print(faces)
+    if x < cuts - 1:
+        faces.append((x, x + 1, x + 1 + cuts, x + cuts))
 
-print(len(vertices))
-print(len(faces))
+faces.append((0, cuts - 1, 2 * cuts - 1, cuts))
+faces.append(bottom_face)
+faces.append(top_face)
+
+vertices += bottom_vertices + top_vertices
 
 my_mesh = bpy.data.meshes.new("Cube")
 my_object = bpy.data.objects.new("Cube", my_mesh)
